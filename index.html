@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .weather-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            text-align: left;
+            width: 300px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
+
+        .weather-info {
+            margin-top: 20px;
+        }
+
+        .weather-info p {
+            margin: 8px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Weather App</h1>
+
+    <div>
+        <input type="text" id="city-input" placeholder="Enter city name" />
+        <button onclick="getWeather()">Get Weather</button>
+    </div>
+
+    <div id="weather-container" class="weather-container" style="display: none;">
+        <h2 id="city-name"></h2>
+        <div class="weather-info">
+            <p>Temperature: <span id="temperature"></span>°C</p>
+            <p>Humidity: <span id="humidity"></span>%</p>
+            <p>Wind Speed: <span id="wind-speed"></span> kph</p>
+            <p>Local Time: <span id="local-time"></span></p> <!-- Added for time -->
+        </div>
+    </div>
+
+    <p id="error-message" class="error"></p>
+
+    <script>
+        async function getWeather() {
+            const city = document.getElementById('city-input').value;
+            const errorMessage = document.getElementById('error-message');
+            const weatherContainer = document.getElementById('weather-container');
+
+            errorMessage.textContent = '';
+            weatherContainer.style.display = 'none';
+
+            if (!city) {
+                errorMessage.textContent = 'Please enter a city name.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/weather?city=${city}`);
+                if (!response.ok) {
+                    throw new Error('Error fetching weather data');
+                }
+
+                const data = await response.json();
+
+                // Display weather data in the frontend
+                document.getElementById('city-name').textContent = `${data.location.name}, ${data.location.country}`;
+                document.getElementById('temperature').textContent = data.current.temp_c;
+                document.getElementById('humidity').textContent = data.current.humidity;
+                document.getElementById('wind-speed').textContent = data.current.wind_kph;
+                document.getElementById('local-time').textContent = data.location.localtime; // Displaying local time
+
+                weatherContainer.style.display = 'block';
+
+            } catch (error) {
+                errorMessage.textContent = 'Error fetching weather data';
+            }
+        }
+    </script>
+
+</body>
+</html>
